@@ -539,6 +539,13 @@ describe("ClaudeAdapterV2 MCP query overrides", () => {
       },
       timeout: ClaudeAdapterV2.CLAUDE_T3_MCP_TOOL_TIMEOUT_MS,
     },
+    worklayer: {
+      type: "http",
+      url: "http://127.0.0.1:43123/mcp/worklayer",
+      headers: {
+        Authorization: "Bearer secret-claude-token",
+      },
+    },
   } as const;
 
   const mcpSessionFor = (
@@ -582,7 +589,10 @@ describe("ClaudeAdapterV2 MCP query overrides", () => {
     });
 
     assert.deepEqual(overrides, {
-      allowedTools: [ClaudeAdapterV2.CLAUDE_T3_MCP_TOOL_WILDCARD],
+      allowedTools: [
+        ClaudeAdapterV2.CLAUDE_T3_MCP_TOOL_WILDCARD,
+        ClaudeAdapterV2.CLAUDE_WORKLAYER_MCP_TOOL_WILDCARD,
+      ],
       mcpServers: T3_MCP_SERVERS,
     });
   });
@@ -597,7 +607,7 @@ describe("ClaudeAdapterV2 MCP query overrides", () => {
     });
 
     assert.deepEqual(overrides, {
-      allowedTools: ["Read", "mcp__t3-code__*"],
+      allowedTools: ["Read", "mcp__t3-code__*", "mcp__worklayer__*"],
       mcpServers: T3_MCP_SERVERS,
     });
   });
@@ -730,7 +740,7 @@ describe("ClaudeAdapterV2 native protocol logging", () => {
       allowedTools: ["Read"],
     });
     assert.deepEqual(overrides, {
-      allowedTools: ["Read", "mcp__t3-code__*"],
+      allowedTools: ["Read", "mcp__t3-code__*", "mcp__worklayer__*"],
       mcpServers: {
         "t3-code": {
           type: "http",
@@ -739,6 +749,13 @@ describe("ClaudeAdapterV2 native protocol logging", () => {
             Authorization: "Bearer secret-claude-token",
           },
           timeout: ClaudeAdapterV2.CLAUDE_T3_MCP_TOOL_TIMEOUT_MS,
+        },
+        worklayer: {
+          type: "http",
+          url: "http://127.0.0.1:43123/mcp/worklayer",
+          headers: {
+            Authorization: "Bearer secret-claude-token",
+          },
         },
       },
     });
