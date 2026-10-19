@@ -1,14 +1,14 @@
-import * as Dialog from "../../components/Dialog";
-import { AppActivityIndicator } from "../../components/AppActivityIndicator";
-import { NavigationRow } from "../../components/NavigationRow";
-import { AppBar } from "../../components/AppBar";
+import * as Dialog from "../../components/ui/Dialog";
+import { AppActivityIndicator } from "../../components/ui/AppActivityIndicator";
+import { NavigationRow } from "../../components/ui/NavigationRow";
+import { AppBar } from "../../components/ui/AppBar";
 import {
   StackActions,
   useIsFocused,
   useNavigation,
   type StaticScreenProps,
 } from "@react-navigation/native";
-import { SymbolView } from "../../components/AppSymbol";
+import { SymbolView } from "../../components/ui/AppSymbol";
 import { availableScratchWorkspaceRoot } from "@t3tools/client-runtime/operations/projects";
 import { isScratchProject } from "@t3tools/client-runtime/state/projects";
 import {
@@ -20,10 +20,10 @@ import { useEffect, useRef, useState } from "react";
 import { Platform, Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { cn } from "../../lib/cn";
-import { ScreenContent } from "../../components/ScreenContent";
-import { Button } from "../../components/Button";
-import { ScreenScrollView as ScrollView } from "../../components/ScreenScrollView";
-import { AppText as Text } from "../../components/AppText";
+import { ScreenContent } from "../../components/ui/ScreenContent";
+import { Button } from "../../components/ui/Button";
+import { ScreenScrollView as ScrollView } from "../../components/ui/ScreenScrollView";
+import { AppText as Text } from "../../components/ui/AppText";
 import { ProjectFavicon } from "../../components/ProjectFavicon";
 import { useProjects, useServerConfigs } from "../../state/entities";
 import { projectEnvironment } from "../../state/projects";
@@ -39,7 +39,6 @@ import { filterProjectScopes, getProjectScopeSelectionTarget } from "./new-task-
 
 type NewTaskRouteParams = {
   readonly incomingShareId?: string | string[];
-  // A `t3code://new?…` prompt link. See usePromptLinkResolver.
   readonly prompt?: string | string[];
   readonly repo?: string | string[];
   readonly pr?: string | string[];
@@ -167,8 +166,6 @@ export function NewTaskRouteScreen({ route }: StaticScreenProps<NewTaskRoutePara
   const screenTitle = incomingShare ? "Start a task" : "Choose project";
   const projectEmptyState = deriveProjectEmptyState(catalogState);
   const serverConfigs = useServerConfigs();
-  // Scratch projects are reached through the No project row, never as rows
-  // of their own.
   const listScopes = projectScopes.filter(
     (scope) =>
       !scope.projects.every((project) =>
@@ -188,9 +185,6 @@ export function NewTaskRouteScreen({ route }: StaticScreenProps<NewTaskRoutePara
   const openScratch = useAtomCommand(projectEnvironment.openScratch, {
     reportFailure: false,
   });
-  // Threads without a project need a connected environment that offers them.
-  // The row starts on the selected environment when it has one, otherwise the
-  // first that does; the draft page's machine picker moves it from there.
   const scratchEnvironments = connectedEnvironments.filter(
     (environment) =>
       availableScratchWorkspaceRoot(
@@ -243,24 +237,23 @@ export function NewTaskRouteScreen({ route }: StaticScreenProps<NewTaskRoutePara
     if (!scratchEnvironment || scratchStartInFlightRef.current) return;
     const environmentId = scratchEnvironment.environmentId;
     scratchStartInFlightRef.current = true;
-    try {
-      const result = await openScratch({ environmentId, input: {} });
-      if (result._tag === "Failure") {
-        if (!isAtomCommandInterrupted(result)) {
-          const error = squashAtomCommandFailure(result);
-          Dialog.alert(
-            "Could not start without a project",
-            error instanceof Error
-              ? error.message
-              : "The folder for threads without a project could not be created.",
-          );
-        }
-        return;
-      }
-      await selectProject(result.value);
-    } finally {
+    const result = await openScratch({ environmentId, input: {} });
+    if (result._tag === "Failure") {
       scratchStartInFlightRef.current = false;
+      if (!isAtomCommandInterrupted(result)) {
+        const error = squashAtomCommandFailure(result);
+        Dialog.alert(
+          "Could not start without a project",
+          error instanceof Error
+            ? error.message
+            : "The folder for threads without a project could not be created.",
+        );
+      }
+      return;
     }
+    // selectProject handles its own failures, so this never throws.
+    await selectProject(result.value);
+    scratchStartInFlightRef.current = false;
   }
 
   useEffect(() => {

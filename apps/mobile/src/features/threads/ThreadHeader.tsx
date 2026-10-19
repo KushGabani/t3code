@@ -1,11 +1,12 @@
 import { useMemo } from "react";
-import { AppBar } from "../../components/AppBar";
-import { ScreenHeaderButton } from "../../components/ScreenHeaderButton";
-import type { AppBarAction } from "../../components/AppBar.types";
+import { AppBar } from "../../components/ui/AppBar";
+import { ScreenHeaderButton } from "../../components/ui/ScreenHeaderButton";
+import type { AppBarAction } from "../../components/ui/AppBar.types";
 import { useAdaptiveWorkspaceLayout } from "../layout/AdaptiveWorkspaceLayout";
 import type { ThreadInspectorMode } from "./thread-inspector-content-stack";
 import { useThreadHeaderOptions } from "./useThreadHeaderOptions";
 import { useWorkspaceListNavigation } from "../workspace/useAndroidWorkspaceNavigation";
+import { PullRequestGlyph } from "../pull-requests/pullRequestGlyphs";
 
 export function ThreadHeader(
   props: Parameters<typeof useThreadHeaderOptions>[0] & {
@@ -55,7 +56,7 @@ export function ThreadHeader(
     if (onMergeBack) {
       actions.push({
         accessibilityLabel: "Merge back to source",
-        icon: "arrow.triangle.merge",
+        icon: PullRequestGlyph.merged,
         onPress: onMergeBack,
       });
     }

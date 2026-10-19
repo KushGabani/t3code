@@ -1,4 +1,4 @@
-import { NativeThemeHost } from "./NativeThemeHost.android";
+import { NativeThemeHost } from "./ui/NativeThemeHost.android";
 import { Box, ExtendedFloatingActionButton, Icon, Text } from "@expo/ui/jetpack-compose";
 import {
   defaultMinSize,
@@ -10,7 +10,7 @@ import {
 } from "@expo/ui/jetpack-compose/modifiers";
 import { useCallback, useState } from "react";
 import { Pressable, View, type StyleProp, type ViewStyle } from "react-native";
-import { useAndroidControlSizing } from "./useAndroidControlSizing";
+import { useAndroidControlSizing } from "./ui/useAndroidControlSizing";
 import { useAppearancePreferences } from "../features/settings/appearance/AppearancePreferencesProvider";
 import { resolveScaledTextRole } from "../lib/appearancePreferences";
 
@@ -24,7 +24,6 @@ export function ScrollComposeButton(props: {
   const { appearance, themeVariables: colors } = useAppearancePreferences();
   const typography = resolveScaledTextRole("footnote", appearance.baseFontSize);
   const { iconSize, fabSize } = useAndroidControlSizing();
-  // Scale the native 56dp minimum; keep text and icons at their requested sizes.
   const nativeSize = Math.max(56, fabSize);
   const scale = fabSize / nativeSize;
   const nativeIconSize = Math.round(iconSize / scale);
@@ -96,7 +95,6 @@ export function ScrollComposeButton(props: {
           right: 0,
           top: 0,
           bottom: 0,
-          // Release the label area as soon as collapse starts, before native measurements arrive.
           width: props.expanded ? buttonWidth * scale : fabSize,
           borderRadius: 16 * scale,
           overflow: "hidden",

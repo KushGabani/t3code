@@ -1,3 +1,4 @@
+import * as Dialog from "../../components/ui/Dialog";
 import {
   ComposerContextId,
   COMPOSER_CONTEXT_TERMINAL_TEXT_MAX_CHARS,
@@ -6,16 +7,15 @@ import {
 } from "@t3tools/contracts";
 import { formatComposerContextReference } from "@t3tools/shared/composerContextReferences";
 import { useState } from "react";
-import { Alert, Platform, Pressable, ScrollView, View } from "react-native";
+import { Platform, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { REVIEW_MONO_FONT_FAMILY } from "../review/reviewDiffRendering";
-import { AppText as Text } from "../../components/AppText";
-import { Sheet } from "../../components/Sheet";
-import { Button } from "../../components/Button";
+import { AppText as Text } from "../../components/ui/AppText";
+import { Sheet } from "../../components/ui/Sheet";
+import { Button } from "../../components/ui/Button";
 import { uuidv4 } from "../../lib/uuid";
 import { insertComposerDraftContext } from "../../state/use-composer-drafts";
 
-/** Line numbers are relative to this frozen viewport, not the terminal's scrollback. */
 export function TerminalContextSheet(props: {
   text: string;
   environmentId: EnvironmentId;
@@ -50,7 +50,7 @@ export function TerminalContextSheet(props: {
         context: { version: 1, records: [record] },
       })
     ) {
-      Alert.alert("Too many context items", "Remove some context from the draft and try again.");
+      Dialog.alert("Too many context items", "Remove some context from the draft and try again.");
       return;
     }
     props.onAttach();
@@ -58,6 +58,7 @@ export function TerminalContextSheet(props: {
   return (
     <Sheet title="Terminal output" onClose={props.onClose}>
       <ScrollView
+        nestedScrollEnabled
         className="flex-1"
         contentInsetAdjustmentBehavior={Platform.OS === "ios" ? "automatic" : "never"}
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 20 }}

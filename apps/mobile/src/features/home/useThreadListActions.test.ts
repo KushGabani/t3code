@@ -43,7 +43,9 @@ vi.mock("expo-haptics", () => ({
   impactAsync: async () => {},
   ImpactFeedbackStyle: { Light: "light" },
 }));
-vi.mock("../../components/Dialog", () => ({
+vi.mock("../../components/ui/Dialog", () => ({
+  alert: (title: string, _message: string, buttons?: { text: string; onPress?: () => void }[]) =>
+    state.alerts.push({ title, buttons }),
   confirm: (dialog: { onConfirm: () => void }) => state.dialogs.push(dialog),
 }));
 vi.mock("../archive/useArchivedThreadSnapshots", () => ({
@@ -89,10 +91,7 @@ vi.mock("../../state/atom-registry", () => ({
 vi.mock("../../state/use-atom-command", () => ({
   useAtomCommand: (command: unknown) => command,
 }));
-// Stubbed at the direct dependency: the real outbox pulls the Expo file-system
-// storage into a test that only reads which threads are queued.
 vi.mock("../../state/use-thread-outbox", () => ({ queuedThreadKeysAtom: "queued-thread-keys" }));
-// The real hold lives in a module-level atom that would leak between cases.
 vi.mock("../../state/thread-order", () => ({
   threadDropBusyAtom: "thread-drop-busy",
   getPendingThreadOrder: () => state.pendingOrder,

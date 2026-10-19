@@ -1,4 +1,4 @@
-import { Chip } from "../../components/Chip";
+import { Chip } from "../../components/ui/Chip";
 import { PullRequestSectionHeading } from "./PullRequestSectionHeading";
 import type { PullRequestListEntry } from "@t3tools/contracts";
 import { View } from "react-native";
@@ -7,6 +7,7 @@ import { PullRequestStackCard } from "./PullRequestStackCard";
 import type { PullRequestParams } from "./usePullRequestDiff";
 import type { PullRequestStackState } from "./usePullRequestStack";
 import { pullRequestListReviewStatus } from "./pullRequestList";
+import { PullRequestGlyph } from "./pullRequestGlyphs";
 
 export function PullRequestOverviewLoading({
   summary,
@@ -74,7 +75,7 @@ export function PullRequestOverviewLoading({
                 : "Branch"
           }
           icon={
-            conflicting ? "exclamationmark.triangle" : clean ? "checkmark.circle" : "arrow.branch"
+            conflicting ? PullRequestGlyph.conflicting : clean ? "checkmark.circle" : "arrow.branch"
           }
           tint={
             conflicting
