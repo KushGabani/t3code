@@ -673,6 +673,12 @@ describe("CodexAdapterV2 process spawning", () => {
                 Authorization: "Bearer secret-codex-token",
               },
             },
+            worklayer: {
+              url: "http://127.0.0.1:43123/mcp/worklayer",
+              http_headers: {
+                Authorization: "Bearer secret-codex-token",
+              },
+            },
           },
         },
       },
