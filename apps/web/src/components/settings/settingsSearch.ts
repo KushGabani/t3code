@@ -1003,6 +1003,10 @@ const SETTINGS_ITEM_PROFILE_FLAGS: Partial<Record<SettingsSearchItemId, WorkLaye
   "remove-agent-credits-on-merge": "pullRequests",
   "pull-request-merge-method": "pullRequests",
   "auto-settle-merged-threads": "pullRequests",
+  "diff-color-scheme": "diffs",
+  "hide-whitespace-changes": "diffs",
+  "default-diff-file-state": "diffs",
+  "diff-layout": "diffs",
 };
 
 function isProfileFlagHidden(flag: WorkLayerHiddenFlag | undefined): boolean {

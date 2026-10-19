@@ -4,6 +4,7 @@ import {
   scopeThreadRef,
 } from "@t3tools/client-runtime/environment";
 import { EnvironmentId, RunId, ThreadId, type ScopedThreadRef } from "@t3tools/contracts";
+import { WORKLAYER_HIDDEN } from "@t3tools/shared/worklayerProfile";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
@@ -23,6 +24,17 @@ const RIGHT_PANEL_KINDS = [
   "pull-requests",
 ] as const;
 export type RightPanelKind = (typeof RIGHT_PANEL_KINDS)[number];
+
+const RIGHT_PANEL_KIND_PROFILE_FLAGS: Partial<
+  Record<RightPanelKind, keyof typeof WORKLAYER_HIDDEN>
+> = {
+  diff: "diffs",
+};
+
+export function isRightPanelKindHidden(kind: RightPanelKind): boolean {
+  const flag = RIGHT_PANEL_KIND_PROFILE_FLAGS[kind];
+  return flag !== undefined && WORKLAYER_HIDDEN[flag];
+}
 
 export interface DeviceTabTarget {
   hostId: string;
@@ -293,14 +305,19 @@ const upsertSurface = (
   current: ThreadRightPanelState,
   surface: RightPanelSurface,
   activate = true,
-): ThreadRightPanelState => ({
-  ...current,
-  isOpen: true,
-  surfaces: current.surfaces.some((entry) => entry.id === surface.id)
-    ? current.surfaces
-    : [...current.surfaces, surface],
-  activeSurfaceId: activate ? surface.id : current.activeSurfaceId,
-});
+): ThreadRightPanelState => {
+  // Every opener funnels through here, so hidden kinds stay closed whether the
+  // request came from a shortcut, the palette, the timeline or a proactive open.
+  if (isRightPanelKindHidden(surface.kind)) return current;
+  return {
+    ...current,
+    isOpen: true,
+    surfaces: current.surfaces.some((entry) => entry.id === surface.id)
+      ? current.surfaces
+      : [...current.surfaces, surface],
+    activeSurfaceId: activate ? surface.id : current.activeSurfaceId,
+  };
+};
 
 const updateThreadStateMap = (
   byThreadKey: Record<string, ThreadRightPanelState>,

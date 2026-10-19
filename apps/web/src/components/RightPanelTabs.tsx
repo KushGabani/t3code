@@ -50,7 +50,7 @@ import {
 
 import { isElectron } from "~/env";
 import type { DesktopPreviewOverlay } from "~/previewStateStore";
-import type { RightPanelSurface } from "~/rightPanelStore";
+import { isRightPanelKindHidden, type RightPanelSurface } from "~/rightPanelStore";
 import { cn } from "~/lib/utils";
 import { resolveShortcutCommand, type ShortcutMatchContext } from "~/keybindings";
 import { readLocalApi } from "~/localApi";
@@ -349,14 +349,18 @@ function RightPanelEmptyState(props: {
       disabledReason: SURFACE_UNAVAILABLE_HINTS.files,
       onClick: props.onAddFiles,
     },
-    {
-      label: "Diff",
-      icon: FileDiff,
-      shortcut: "D",
-      available: props.diffAvailable,
-      disabledReason: SURFACE_UNAVAILABLE_HINTS.diff,
-      onClick: props.onAddDiff,
-    },
+    ...(isRightPanelKindHidden("diff")
+      ? []
+      : [
+          {
+            label: "Diff",
+            icon: FileDiff,
+            shortcut: "D",
+            available: props.diffAvailable,
+            disabledReason: SURFACE_UNAVAILABLE_HINTS.diff,
+            onClick: props.onAddDiff,
+          } as const,
+        ]),
     {
       label: "Pull request",
       icon: PullRequestGlyph.pullRequest,
@@ -1049,14 +1053,18 @@ export function RightPanelTabs(props: RightPanelTabsProps) {
       disabledReason: SURFACE_DISABLED_REASONS.files,
       onClick: props.onAddFiles,
     },
-    {
-      label: "Diff",
-      icon: FileDiff,
-      shortcut: "D",
-      available: props.diffAvailable,
-      disabledReason: SURFACE_DISABLED_REASONS.diff,
-      onClick: props.onAddDiff,
-    },
+    ...(isRightPanelKindHidden("diff")
+      ? []
+      : [
+          {
+            label: "Diff",
+            icon: FileDiff,
+            shortcut: "D",
+            available: props.diffAvailable,
+            disabledReason: SURFACE_DISABLED_REASONS.diff,
+            onClick: props.onAddDiff,
+          } as const,
+        ]),
     {
       label: "Pull request",
       icon: PullRequestGlyph.pullRequest,
