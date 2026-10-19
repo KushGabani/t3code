@@ -998,6 +998,7 @@ type WorkLayerHiddenFlag = keyof typeof WORKLAYER_HIDDEN;
 
 const SETTINGS_PATH_PROFILE_FLAGS: Partial<Record<SettingsPath, WorkLayerHiddenFlag>> = {
   "/settings/source-control": "git",
+  "/settings/scheduled-tasks": "scheduledTasks",
 };
 
 const SETTINGS_ITEM_PROFILE_FLAGS: Partial<Record<SettingsSearchItemId, WorkLayerHiddenFlag>> = {
