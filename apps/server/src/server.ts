@@ -66,6 +66,7 @@ import * as TerminalManager from "./terminal/Manager.ts";
 import * as McpHttpServer from "./mcp/McpHttpServer.ts";
 import * as WorkLayerConnection from "./worklayer/WorkLayerConnection.ts";
 import * as WorkLayerMcpProxy from "./worklayer/WorkLayerMcpProxy.ts";
+import * as WorkLayerOAuthHttp from "./worklayer/WorkLayerOAuthHttp.ts";
 import * as McpSessionRegistry from "./mcp/McpSessionRegistry.ts";
 import * as PreviewAutomationBroker from "./mcp/PreviewAutomationBroker.ts";
 import * as DeviceService from "./device/DeviceService.ts";
@@ -691,7 +692,9 @@ const layerMakeRoutes = Layer.mergeAll(
     ServerHttp.layerAssetRoute,
     ServerHttp.layerAttachmentUploadRoute,
     DeviceHubProxy.layer,
-    WorkLayerMcpProxy.layer.pipe(Layer.provide(WorkLayerConnection.layer)),
+    Layer.mergeAll(WorkLayerMcpProxy.layer, WorkLayerOAuthHttp.layer).pipe(
+      Layer.provide(WorkLayerConnection.layer.pipe(Layer.provide(ServerSecretStore.layer))),
+    ),
     ServerBrowserStream.routeLayer,
     ServerHttp.layerStaticAndDevRoute,
     Ws.layer,

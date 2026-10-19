@@ -94,10 +94,9 @@ const proxy = (
       return jsonRpcError(502, "WorkLayer could not be reached.");
     }
     const upstream = response.value;
-    if (upstream.status === 401 || upstream.status === 403) {
-      yield* Effect.logWarning("WorkLayer rejected the server's credential", {
-        status: upstream.status,
-      });
+    if (upstream.status === 401) {
+      yield* Effect.logWarning("WorkLayer rejected the server's credential");
+      yield* connection.markRejected;
     }
     const responseHeaders: Record<string, string> = {};
     for (const name of FORWARDED_RESPONSE_HEADERS) {
