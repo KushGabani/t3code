@@ -8,4 +8,9 @@ export const WORKLAYER_HIDDEN = {
   pullRequests: true,
   /** Diff panel and the changed-files card under assistant replies. */
   diffs: true,
+  /**
+   * Branch picker, commit and push actions, cloning and Source Control settings.
+   * Projects read as plain folders, so chats also run in the project folder.
+   */
+  git: true,
 } as const;

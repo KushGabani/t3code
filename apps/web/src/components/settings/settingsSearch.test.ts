@@ -189,13 +189,17 @@ describe("searchSettings", () => {
         hasThreadAutoSettlement: true,
       }).map((item) => item.id);
     expect(availableIds()).toContain("pull-request-merge-method");
+    expect(availableIds()).toContain("git-fetch-interval");
 
     worklayerHidden.pullRequests = true;
+    worklayerHidden.git = true;
     try {
       expect(availableIds()).not.toContain("pull-request-merge-method");
+      expect(availableIds()).not.toContain("git-fetch-interval");
       expect(availableIds()).toContain("theme");
     } finally {
       delete worklayerHidden.pullRequests;
+      delete worklayerHidden.git;
     }
   });
 
