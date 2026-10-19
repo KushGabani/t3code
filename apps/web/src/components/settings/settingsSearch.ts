@@ -996,7 +996,9 @@ const SEARCH_ITEMS_BY_ID = new Map(SETTINGS_SEARCH_ITEMS.map((item) => [item.id,
 
 type WorkLayerHiddenFlag = keyof typeof WORKLAYER_HIDDEN;
 
-const SETTINGS_PATH_PROFILE_FLAGS: Partial<Record<SettingsPath, WorkLayerHiddenFlag>> = {};
+const SETTINGS_PATH_PROFILE_FLAGS: Partial<Record<SettingsPath, WorkLayerHiddenFlag>> = {
+  "/settings/source-control": "git",
+};
 
 const SETTINGS_ITEM_PROFILE_FLAGS: Partial<Record<SettingsSearchItemId, WorkLayerHiddenFlag>> = {
   "pull-request-links-open-in-app": "pullRequests",

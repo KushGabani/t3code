@@ -5,6 +5,7 @@ import type {
   ResolvedKeybindingsConfig,
   ThreadId,
 } from "@t3tools/contracts";
+import { WORKLAYER_HIDDEN } from "@t3tools/shared/worklayerProfile";
 
 import type { DraftId } from "../../composerDraftStore";
 import { useT3ProjectFileScripts } from "../../hooks/useT3ProjectFileScripts";
@@ -150,7 +151,7 @@ export function ThreadDetailsPanel(props: ThreadDetailsPanelProps) {
             </div>
           </ThreadDetailsSection>
 
-          {props.gitCwd ? (
+          {props.gitCwd && !WORKLAYER_HIDDEN.git ? (
             <ThreadDetailsSection
               headingId="thread-details-version-control-heading"
               title="Version Control"

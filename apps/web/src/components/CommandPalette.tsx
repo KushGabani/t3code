@@ -2,6 +2,7 @@
 
 import { threadPullRequestLinkMode } from "@t3tools/client-runtime/thread-pull-request-compatibility";
 import { visibleThreadPullRequests } from "@t3tools/shared/threadPullRequests";
+import { WORKLAYER_HIDDEN } from "@t3tools/shared/worklayerProfile";
 
 import { scopeProjectRef, scopeThreadRef } from "@t3tools/client-runtime/environment";
 import {
@@ -1408,7 +1409,7 @@ function OpenCommandPaletteDialog(props: {
       },
     ];
 
-    if (newProjectsRootFor(environmentId) !== null) {
+    if (!WORKLAYER_HIDDEN.git && newProjectsRootFor(environmentId) !== null) {
       sourceItems.unshift({
         kind: "action",
         value: `action:add-project:${environmentId}:new`,
@@ -1423,10 +1424,9 @@ function OpenCommandPaletteDialog(props: {
       });
     }
 
-    const orderedSources: ReadonlyArray<AddProjectRemoteSource> = [
-      "url",
-      ...sortAddProjectProviderSources(readinessBySource),
-    ];
+    const orderedSources: ReadonlyArray<AddProjectRemoteSource> = WORKLAYER_HIDDEN.git
+      ? []
+      : ["url", ...sortAddProjectProviderSources(readinessBySource)];
 
     for (const source of orderedSources) {
       const label = addProjectRemoteSourceLabel(source);
