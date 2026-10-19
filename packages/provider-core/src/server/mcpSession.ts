@@ -40,3 +40,18 @@ export function withAgentDeviceEnvironment(
     ...(shimDir ? { PATH: basePath ? `${shimDir}${separator}${basePath}` : shimDir } : {}),
   };
 }
+
+/**
+ * MCP server entry name for WorkLayer's tools, so harnesses show them as
+ * `mcp__worklayer__*` rather than under `t3-code`.
+ */
+export const WORKLAYER_MCP_SERVER_NAME = "worklayer";
+
+/**
+ * WorkLayer's tools are served by T3's own server next to `/mcp`, with the
+ * same session credential. The server holds the one WorkLayer connection and
+ * its token; agents never see it.
+ */
+export function worklayerMcpEndpoint(config: Pick<McpProviderSessionConfig, "endpoint">): string {
+  return `${config.endpoint}/${WORKLAYER_MCP_SERVER_NAME}`;
+}

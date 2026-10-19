@@ -1204,6 +1204,7 @@ export function makeClaudeQueryOptions(input: {
 }
 
 export const CLAUDE_T3_MCP_TOOL_WILDCARD = "mcp__t3-code__*";
+export const CLAUDE_WORKLAYER_MCP_TOOL_WILDCARD = `mcp__${McpProviderSession.WORKLAYER_MCP_SERVER_NAME}__*`;
 
 // Must stay in sync with the Tool.Readonly annotations on OrchestratorToolkit;
 // ClaudeAdapterV2.test.ts cross-checks this list against the toolkit.
@@ -1258,9 +1259,11 @@ export function claudeMcpQueryOverrides(input: {
   if (session === undefined) {
     return input.allowedTools === undefined ? {} : { allowedTools: input.allowedTools };
   }
+  // WorkLayer applies its own approval policies, but a read-only sandbox still
+  // leaves its tools unapproved so nothing there writes on the agent's own say.
   const mcpAllowedTools = input.readOnlySandbox
     ? CLAUDE_READ_ONLY_T3_MCP_ALLOWED_TOOLS
-    : [CLAUDE_T3_MCP_TOOL_WILDCARD];
+    : [CLAUDE_T3_MCP_TOOL_WILDCARD, CLAUDE_WORKLAYER_MCP_TOOL_WILDCARD];
   return {
     allowedTools: Array.from(new Set([...(input.allowedTools ?? []), ...mcpAllowedTools])),
     mcpServers: {
@@ -1271,6 +1274,13 @@ export function claudeMcpQueryOverrides(input: {
           Authorization: session.authorizationHeader,
         },
         timeout: CLAUDE_T3_MCP_TOOL_TIMEOUT_MS,
+      },
+      [McpProviderSession.WORKLAYER_MCP_SERVER_NAME]: {
+        type: "http",
+        url: McpProviderSession.worklayerMcpEndpoint(session),
+        headers: {
+          Authorization: session.authorizationHeader,
+        },
       },
     },
   };

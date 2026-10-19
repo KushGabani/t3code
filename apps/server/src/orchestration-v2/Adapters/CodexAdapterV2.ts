@@ -1354,6 +1354,12 @@ export function codexThreadRuntimeParams(input: {
                   Authorization: mcpSession.authorizationHeader,
                 },
               },
+              [McpProviderSession.WORKLAYER_MCP_SERVER_NAME]: {
+                url: McpProviderSession.worklayerMcpEndpoint(mcpSession),
+                http_headers: {
+                  Authorization: mcpSession.authorizationHeader,
+                },
+              },
             },
           }),
     },
