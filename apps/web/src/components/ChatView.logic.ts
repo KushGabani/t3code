@@ -35,6 +35,7 @@ import {
   type AtomCommandResult,
 } from "@t3tools/client-runtime/state/runtime";
 import { videoMimeType } from "@t3tools/shared/video";
+import { WORKLAYER_HIDDEN } from "@t3tools/shared/worklayerProfile";
 import {
   appendCodexArtifactTemplateUsePrompt,
   codexArtifactTemplateUsePrompt,
@@ -801,7 +802,7 @@ export function resolveSendEnvMode(input: {
   requestedEnvMode: DraftThreadEnvMode;
   isGitRepo: boolean;
 }): DraftThreadEnvMode {
-  return input.isGitRepo ? input.requestedEnvMode : "local";
+  return input.isGitRepo && !WORKLAYER_HIDDEN.worktrees ? input.requestedEnvMode : "local";
 }
 
 export function resolveBackgroundDraftWorkspaceOptions(input: {

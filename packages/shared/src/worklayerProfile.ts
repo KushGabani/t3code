@@ -13,4 +13,6 @@ export const WORKLAYER_HIDDEN = {
    * Projects read as plain folders, so chats also run in the project folder.
    */
   git: true,
+  /** Worktree mode settings; new chats always run in the project folder. */
+  worktrees: true,
 } as const;

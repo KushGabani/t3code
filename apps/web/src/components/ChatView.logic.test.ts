@@ -42,8 +42,10 @@ import * as DateTime from "effect/DateTime";
 import * as Option from "effect/Option";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
-// Keep the diff surface the WorkLayer profile hides under test.
-vi.mock("@t3tools/shared/worklayerProfile", () => ({ WORKLAYER_HIDDEN: {} }));
+// Upstream behavior is tested with every feature visible; tests that cover the
+// WorkLayer profile switch individual flags on.
+const worklayerHidden = vi.hoisted((): Record<string, boolean> => ({}));
+vi.mock("@t3tools/shared/worklayerProfile", () => ({ WORKLAYER_HIDDEN: worklayerHidden }));
 import { Atom, AsyncResult } from "effect/reactivity";
 import { appAtomRegistry } from "../rpc/atomRegistry";
 import { environmentThreadDetails } from "../state/threads";
@@ -440,6 +442,15 @@ describe("resolveSendEnvMode", () => {
   it("keeps worktree mode only for git repositories", () => {
     expect(resolveSendEnvMode({ requestedEnvMode: "worktree", isGitRepo: true })).toBe("worktree");
     expect(resolveSendEnvMode({ requestedEnvMode: "worktree", isGitRepo: false })).toBe("local");
+  });
+
+  it("stays in the project folder when the WorkLayer profile hides worktrees", () => {
+    worklayerHidden.worktrees = true;
+    try {
+      expect(resolveSendEnvMode({ requestedEnvMode: "worktree", isGitRepo: true })).toBe("local");
+    } finally {
+      delete worklayerHidden.worktrees;
+    }
   });
 });
 

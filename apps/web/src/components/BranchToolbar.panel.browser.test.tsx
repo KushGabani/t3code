@@ -12,6 +12,10 @@ const state = vi.hoisted(() => ({
   writeTextToClipboard: vi.fn(),
 }));
 
+// Upstream behavior is tested with worktrees visible; the WorkLayer profile's
+// hidden workspace choice is covered by its own test below.
+const worklayerHidden = vi.hoisted((): Record<string, boolean> => ({}));
+vi.mock("@t3tools/shared/worklayerProfile", () => ({ WORKLAYER_HIDDEN: worklayerHidden }));
 vi.mock(import("../localApi"), async (original) => ({
   ...(await original()),
   readLocalApi: (() => ({ contextMenu: { show: state.showContextMenu } })) as never,
@@ -104,6 +108,30 @@ it("keeps machine choices usable when the combined row's workspace is locked", a
     .toHaveAttribute("aria-disabled", "true");
   await userEvent.click(page.getByRole("menuitemradio", { name: "remote" }));
   expect(onEnvironmentChange).toHaveBeenCalledWith("remote");
+});
+
+it("keeps machine choices without a workspace choice when the WorkLayer profile hides worktrees", async () => {
+  worklayerHidden.worktrees = true;
+  try {
+    const onEnvironmentChange = vi.fn();
+    await render({
+      onEnvironmentChange,
+      availableEnvironments: ["local", "remote"].map((id) => ({
+        environmentId: EnvironmentId.make(id),
+        projectId: ProjectId.make("project"),
+        label: id,
+        isPrimary: id === "local",
+        machine: "server",
+      })),
+    });
+    await userEvent.click(container.querySelector("button")!);
+    await expect.element(page.getByRole("menuitemradio", { name: "remote" })).toBeVisible();
+    expect(document.querySelector('[role="menu"]')?.textContent).not.toMatch(/worktree/i);
+    await userEvent.click(page.getByRole("menuitemradio", { name: "remote" }));
+    expect(onEnvironmentChange).toHaveBeenCalledWith("remote");
+  } finally {
+    delete worklayerHidden.worktrees;
+  }
 });
 
 it("shows a started thread's primary machine as a static label in the composer", async () => {
