@@ -717,9 +717,8 @@ const layerMakeRoutes = Layer.mergeAll(
     ServerHttp.layerAssetRoute,
     ServerHttp.layerAttachmentUploadRoute,
     DeviceHubProxy.layer,
-    Layer.mergeAll(WorkLayerMcpProxy.layer, WorkLayerOAuthHttp.layer).pipe(
-      Layer.provide(WorkLayerConnection.layer.pipe(Layer.provide(ServerSecretStore.layer))),
-    ),
+    WorkLayerMcpProxy.layer,
+    WorkLayerOAuthHttp.layer,
     ServerBrowserStream.routeLayer,
     ServerHttp.layerStaticAndDevRoute,
     Ws.layer,
@@ -751,6 +750,8 @@ const layerMakeRoutes = Layer.mergeAll(
   Layer.provide(layerCommandReadiness),
   Layer.provide(ServerHttp.layerBrowserApiCors),
   Layer.provide(ServerHttp.layerHttpCompression),
+  // One WorkLayer connection behind the MCP proxy, its sign-in routes and the WebSocket RPCs.
+  Layer.provide(WorkLayerConnection.layer.pipe(Layer.provide(ServerSecretStore.layer))),
 );
 
 const layerMakeServer = Layer.unwrap(

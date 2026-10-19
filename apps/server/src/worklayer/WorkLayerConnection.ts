@@ -23,12 +23,18 @@ import * as Redacted from "effect/Redacted";
 import * as Ref from "effect/Ref";
 import * as Schema from "effect/Schema";
 import * as Semaphore from "effect/Semaphore";
+import * as Stream from "effect/Stream";
+import * as SubscriptionRef from "effect/SubscriptionRef";
+import { HttpServer } from "effect/http";
+import * as NetAddress from "effect/net/NetAddress";
+import type { WorkLayerConnectionState } from "@t3tools/contracts";
 
 import * as ServerSecretStore from "../auth/ServerSecretStore.ts";
 
 export const DEFAULT_WORKLAYER_MCP_URL = "https://mcp.myworklayer.com";
 
 const SECRET_NAME = "worklayer-oauth";
+const CALLBACK_PATH = "/oauth/worklayer/callback";
 /** Refresh this long before the access token expires. */
 const REFRESH_MARGIN_MS = 60_000;
 
@@ -88,6 +94,13 @@ export class WorkLayerConnection extends Context.Service<
      * browser, which comes back to `redirectUrl` with a code and state.
      */
     readonly startSignIn: (redirectUrl: string) => Effect.Effect<URL, WorkLayerAuthError>;
+    /**
+     * `startSignIn` coming back to this server's loopback address, for a
+     * browser on the same machine (the desktop app opens the system browser).
+     */
+    readonly startLocalSignIn: Effect.Effect<URL, WorkLayerAuthError>;
+    /** The current state, then every change. */
+    readonly changes: Stream.Stream<WorkLayerConnectionState>;
     readonly completeSignIn: (input: {
       readonly code: string;
       readonly state: string;
@@ -159,6 +172,7 @@ const make = Effect.gen(function* () {
     Config.withDefault(DEFAULT_WORKLAYER_MCP_URL),
   );
   const secrets = yield* ServerSecretStore.ServerSecretStore;
+  const httpServer = yield* HttpServer.HttpServer;
   const crypto = yield* Crypto.Crypto;
   const lock = yield* Semaphore.make(1);
   // Loaded on first use; every change is written through to the secret store.
@@ -167,6 +181,20 @@ const make = Effect.gen(function* () {
   const pendingFlow = yield* Ref.make<
     Option.Option<{ readonly state: string; readonly verifier?: string }>
   >(Option.none());
+
+  const state = yield* SubscriptionRef.make<WorkLayerConnectionState>({ status: "disconnected" });
+  const publish = Effect.gen(function* () {
+    const draft = Option.flatten(yield* Ref.get(cache));
+    const status: WorkLayerConnectionState["status"] =
+      Option.isSome(draft) && draft.value.tokens !== undefined
+        ? "connected"
+        : Option.isSome(yield* Ref.get(pendingFlow))
+          ? "connecting"
+          : "disconnected";
+    if ((yield* SubscriptionRef.get(state)).status !== status) {
+      yield* SubscriptionRef.set(state, { status });
+    }
+  });
 
   const storageFailed = (cause: unknown) =>
     new WorkLayerAuthError({ reason: "storage_failed", cause });
@@ -190,6 +218,7 @@ const make = Effect.gen(function* () {
     encodeStored(draft as StoredConnection).pipe(
       Effect.flatMap((text) => secrets.set(SECRET_NAME, new TextEncoder().encode(text))),
       Effect.andThen(Ref.set(cache, Option.some(Option.some({ ...draft })))),
+      Effect.andThen(publish),
       Effect.mapError(storageFailed),
     );
 
@@ -281,6 +310,7 @@ const make = Effect.gen(function* () {
         : { tokensObtainedAt: previous.tokensObtainedAt }),
     });
     yield* Ref.set(pendingFlow, Option.some({ state, verifier: flow.verifier }));
+    yield* publish;
     return flow.authorizationUrl;
   }, lock.withPermit);
 
@@ -304,13 +334,28 @@ const make = Effect.gen(function* () {
     yield* secrets.remove(SECRET_NAME).pipe(Effect.mapError(storageFailed));
     yield* Ref.set(cache, Option.some(Option.none()));
     yield* Ref.set(pendingFlow, Option.none());
+    yield* publish;
   }).pipe(lock.withPermit);
+
+  // A wildcard bind is reachable on loopback, where the user's browser runs.
+  const localCallbackUrl = NetAddress.isInetAddress(httpServer.address)
+    ? `http://${
+        NetAddress.isUnspecified(httpServer.address.address)
+          ? "127.0.0.1"
+          : NetAddress.formatUrlHostString(NetAddress.formatIp(httpServer.address.address))
+      }:${httpServer.address.port}${CALLBACK_PATH}`
+    : `http://127.0.0.1${CALLBACK_PATH}`;
+
+  // Load the stored connection now so the first subscriber sees the real state.
+  yield* load.pipe(Effect.andThen(publish), Effect.ignore);
 
   return WorkLayerConnection.of({
     url,
     authorization,
     markRejected,
     startSignIn,
+    startLocalSignIn: Effect.suspend(() => startSignIn(localCallbackUrl)),
+    changes: SubscriptionRef.changes(state),
     completeSignIn,
     disconnect,
   });

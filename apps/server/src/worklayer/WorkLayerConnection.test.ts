@@ -9,7 +9,10 @@ import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
+import * as Stream from "effect/Stream";
 import * as Redacted from "effect/Redacted";
+import { HttpServer } from "effect/http";
+import * as NetAddress from "effect/net/NetAddress";
 
 import * as ServerSecretStore from "../auth/ServerSecretStore.ts";
 import * as WorkLayerConnection from "./WorkLayerConnection.ts";
@@ -113,6 +116,15 @@ const makeConnection = Effect.fn("makeConnection")(function* (mcpUrl: string) {
         Layer.provide(Layer.succeed(ServerSecretStore.ServerSecretStore, secrets)),
         Layer.provide(EffectNodeCrypto.layer),
         Layer.provide(
+          Layer.succeed(
+            HttpServer.HttpServer,
+            HttpServer.HttpServer.of({
+              address: NetAddress.unixPathAddress("/tmp/t3-test.sock"),
+              serve: () => Effect.die("unused"),
+            } as unknown as HttpServer.HttpServer["Service"]),
+          ),
+        ),
+        Layer.provide(
           ConfigProvider.layer(ConfigProvider.fromEnv({ env: { WORKLAYER_MCP_URL: mcpUrl } })),
         ),
       ),
@@ -126,6 +138,14 @@ const header = (connection: WorkLayerConnection.WorkLayerConnection["Service"]) 
     Effect.map((value) => Option.getOrUndefined(Option.map(value, Redacted.value))),
   );
 
+/** The latest state the status stream has for a subscriber that just arrived. */
+const status = (connection: WorkLayerConnection.WorkLayerConnection["Service"]) =>
+  connection.changes.pipe(
+    Stream.take(1),
+    Stream.runHead,
+    Effect.map((value) => Option.getOrUndefined(value)?.status),
+  );
+
 const REDIRECT_URL = "http://127.0.0.1:4773/oauth/worklayer/callback";
 
 describe("WorkLayerConnection", () => {
@@ -134,10 +154,12 @@ describe("WorkLayerConnection", () => {
       const authServer = yield* fakeAuthServer;
       const { connection, data } = yield* makeConnection(authServer.mcpUrl);
       expect(yield* header(connection)).toBeUndefined();
+      expect(yield* status(connection)).toBe("disconnected");
 
       const authorizationUrl = yield* connection.startSignIn(REDIRECT_URL);
       expect(authorizationUrl.searchParams.get("redirect_uri")).toBe(REDIRECT_URL);
       expect(authorizationUrl.searchParams.get("code_challenge_method")).toBe("S256");
+      expect(yield* status(connection)).toBe("connecting");
 
       // The user approves in their browser; WorkLayer sends it back with a code.
       const approved = yield* Effect.promise(() => fetch(authorizationUrl, { redirect: "manual" }));
@@ -147,6 +169,7 @@ describe("WorkLayerConnection", () => {
         state: back.searchParams.get("state")!,
       });
       expect(yield* header(connection)).toBe("Bearer access-2");
+      expect(yield* status(connection)).toBe("connected");
       expect(data.size).toBe(1);
 
       yield* connection.markRejected;
@@ -155,6 +178,7 @@ describe("WorkLayerConnection", () => {
 
       yield* connection.disconnect;
       expect(yield* header(connection)).toBeUndefined();
+      expect(yield* status(connection)).toBe("disconnected");
       expect(data.size).toBe(0);
     }).pipe(Effect.scoped),
   );

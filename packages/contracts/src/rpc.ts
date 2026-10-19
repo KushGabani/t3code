@@ -93,6 +93,11 @@ import {
   AgentSessionScanError,
 } from "./agentSessions.ts";
 import {
+  WorkLayerConnectError,
+  WorkLayerConnectResult,
+  WorkLayerConnectionState,
+} from "./worklayer.ts";
+import {
   AssetAccessError,
   AssetCreateUrlInput,
   AssetCreateUrlResult,
@@ -391,6 +396,8 @@ export const WS_METHODS = {
   filesystemGetMetadata: "filesystem.getMetadata",
   agentSessionsScan: "agentSessions.scan",
   agentSessionsImport: "agentSessions.import",
+  worklayerConnect: "worklayer.connect",
+  worklayerSubscribe: "worklayer.subscribe",
   assetsCreateUrl: "assets.createUrl",
   assetsPersistChatAttachments: "assets.persistChatAttachments",
   attachmentsCreateUploadUrl: "attachments.createUploadUrl",
@@ -1293,6 +1300,19 @@ const WsAgentSessionsImportRpc = Rpc.make(WS_METHODS.agentSessionsImport, {
   ]),
 });
 
+const WsWorkLayerConnectRpc = Rpc.make(WS_METHODS.worklayerConnect, {
+  payload: Schema.Struct({}),
+  success: WorkLayerConnectResult,
+  error: Schema.Union([WorkLayerConnectError, EnvironmentAuthorizationError]),
+});
+
+const WsWorkLayerSubscribeRpc = Rpc.make(WS_METHODS.worklayerSubscribe, {
+  payload: Schema.Struct({}),
+  success: WorkLayerConnectionState,
+  error: EnvironmentAuthorizationError,
+  stream: true,
+});
+
 const WsAssetsCreateUrlRpc = Rpc.make(WS_METHODS.assetsCreateUrl, {
   payload: AssetCreateUrlInput,
   success: AssetCreateUrlResult,
@@ -1993,6 +2013,8 @@ export const WsRpcGroup = RpcGroup.make(
   WsFilesystemGetMetadataRpc,
   WsAgentSessionsScanRpc,
   WsAgentSessionsImportRpc,
+  WsWorkLayerConnectRpc,
+  WsWorkLayerSubscribeRpc,
   WsAssetsCreateUrlRpc,
   WsAssetsPersistChatAttachmentsRpc,
   WsAttachmentsCreateUploadUrlRpc,
