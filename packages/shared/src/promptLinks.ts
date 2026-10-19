@@ -1,3 +1,4 @@
+import { APP_IDENTITY } from "./appIdentity.ts";
 import { DEFAULT_HOSTED_APP_URL } from "./connectAuth.ts";
 
 /**
@@ -212,7 +213,8 @@ export function buildNewThreadLink(input: {
   return url.toString();
 }
 
-const APP_SCHEME = /^t3code(?:-[a-z]+)?:$/;
+// Mobile still registers `t3code://`; desktop registers this build's own scheme.
+const APP_SCHEME = new RegExp(`^(?:t3code|${APP_IDENTITY.scheme})(?:-[a-z]+)?:$`);
 const THREAD_PATH = /^\/([^/]+)\/([^/]+)\/?$/;
 
 /**

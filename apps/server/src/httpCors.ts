@@ -1,3 +1,4 @@
+import { APP_IDENTITY } from "@t3tools/shared/appIdentity";
 import { ORCHESTRATION_PROTOCOL_HEADER } from "@t3tools/contracts";
 
 export const browserApiCorsAllowedMethods = ["GET", "POST", "OPTIONS"] as const;
@@ -11,4 +12,7 @@ export const browserApiCorsAllowedHeaders = [
 ] as const;
 
 /** Origins of the Electron renderer, packaged and dev. */
-export const DESKTOP_RENDERER_ORIGINS = ["t3code://app", "t3code-dev://app"] as const;
+export const DESKTOP_RENDERER_ORIGINS = [
+  `${APP_IDENTITY.scheme}://app`,
+  `${APP_IDENTITY.devScheme}://app`,
+] as const;

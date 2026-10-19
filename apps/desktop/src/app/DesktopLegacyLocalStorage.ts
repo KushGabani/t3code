@@ -31,8 +31,9 @@ export class DesktopLegacyLocalStorage extends Context.Service<
 >()("@t3tools/desktop/app/DesktopLegacyLocalStorage") {}
 
 const MARKER_FILE_NAME = "v1-local-storage-imported";
-// V1 used "T3 Code (Alpha)" when that folder existed and "t3code" otherwise.
-const V1_PROFILE_NAMES = ["T3 Code (Alpha)", "t3code"];
+// T3 Code V1 used "T3 Code (Alpha)" or "t3code". Those profiles belong to an
+// installed T3 Code, not to this app, so there is nothing to import.
+const V1_PROFILE_NAMES: ReadonlyArray<string> = [];
 
 const make = Effect.gen(function* () {
   const environment = yield* DesktopEnvironment.DesktopEnvironment;

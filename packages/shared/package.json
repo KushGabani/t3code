@@ -367,6 +367,10 @@
       "types": "./src/desktopAppControl.ts",
       "import": "./src/desktopAppControl.ts"
     },
+    "./appIdentity": {
+      "types": "./src/appIdentity.ts",
+      "import": "./src/appIdentity.ts"
+    },
     "./thirdPartyLicenses": {
       "types": "./src/thirdPartyLicenses.ts",
       "import": "./src/thirdPartyLicenses.ts"

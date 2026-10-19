@@ -644,7 +644,7 @@ it.layer(NodeServices.layer)("EnvironmentAuth.layer", (it) => {
         origin: "https://box.tail1234.ts.net",
         "x-forwarded-host": "box.tail1234.ts.net",
       });
-      yield* upgrade({ origin: "t3code://app" });
+      yield* upgrade({ origin: "worklayer://app" });
       yield* upgrade({ origin: "http://localhost:5733" });
       yield* upgrade({});
 
