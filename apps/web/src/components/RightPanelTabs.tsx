@@ -325,22 +325,30 @@ function RightPanelEmptyState(props: {
   const [highlight, setHighlight] = useState(-1);
 
   const actions = [
-    {
-      label: "Browser",
-      icon: Globe2,
-      shortcut: "B",
-      available: props.browserAvailable,
-      disabledReason: SURFACE_UNAVAILABLE_HINTS.browser,
-      onClick: props.onAddBrowser,
-    },
-    {
-      label: "Terminal",
-      icon: TerminalSquare,
-      shortcut: "T",
-      available: props.terminalAvailable,
-      disabledReason: SURFACE_UNAVAILABLE_HINTS.terminal,
-      onClick: props.onAddTerminal,
-    },
+    ...(isRightPanelKindHidden("preview")
+      ? []
+      : [
+          {
+            label: "Browser",
+            icon: Globe2,
+            shortcut: "B",
+            available: props.browserAvailable,
+            disabledReason: SURFACE_UNAVAILABLE_HINTS.browser,
+            onClick: props.onAddBrowser,
+          } as const,
+        ]),
+    ...(isRightPanelKindHidden("terminal")
+      ? []
+      : [
+          {
+            label: "Terminal",
+            icon: TerminalSquare,
+            shortcut: "T",
+            available: props.terminalAvailable,
+            disabledReason: SURFACE_UNAVAILABLE_HINTS.terminal,
+            onClick: props.onAddTerminal,
+          } as const,
+        ]),
     {
       label: "Files",
       icon: Files,
@@ -377,15 +385,19 @@ function RightPanelEmptyState(props: {
       disabledReason: SURFACE_UNAVAILABLE_HINTS.pullRequests,
       onClick: props.onAddPullRequests,
     },
-    {
-      label: "Device",
-      description: "Watch an iOS Simulator or Android Emulator.",
-      icon: Smartphone,
-      shortcut: "M",
-      available: props.deviceAvailable,
-      disabledReason: SURFACE_UNAVAILABLE_HINTS.device,
-      onClick: props.onAddDevice,
-    },
+    ...(isRightPanelKindHidden("device")
+      ? []
+      : [
+          {
+            label: "Device",
+            description: "Watch an iOS Simulator or Android Emulator.",
+            icon: Smartphone,
+            shortcut: "M",
+            available: props.deviceAvailable,
+            disabledReason: SURFACE_UNAVAILABLE_HINTS.device,
+            onClick: props.onAddDevice,
+          } as const,
+        ]),
   ] as const;
 
   type SurfaceAction = (typeof actions)[number];
@@ -1029,22 +1041,30 @@ export function RightPanelTabs(props: RightPanelTabsProps) {
   };
 
   const addSurfaceActions = [
-    {
-      label: "Browser",
-      icon: Globe2,
-      shortcut: "B",
-      available: props.browserAvailable,
-      disabledReason: SURFACE_DISABLED_REASONS.browser,
-      onClick: props.onAddBrowser,
-    },
-    {
-      label: "Terminal",
-      icon: TerminalSquare,
-      shortcut: "T",
-      available: props.terminalAvailable,
-      disabledReason: SURFACE_DISABLED_REASONS.terminal,
-      onClick: props.onAddTerminal,
-    },
+    ...(isRightPanelKindHidden("preview")
+      ? []
+      : [
+          {
+            label: "Browser",
+            icon: Globe2,
+            shortcut: "B",
+            available: props.browserAvailable,
+            disabledReason: SURFACE_DISABLED_REASONS.browser,
+            onClick: props.onAddBrowser,
+          } as const,
+        ]),
+    ...(isRightPanelKindHidden("terminal")
+      ? []
+      : [
+          {
+            label: "Terminal",
+            icon: TerminalSquare,
+            shortcut: "T",
+            available: props.terminalAvailable,
+            disabledReason: SURFACE_DISABLED_REASONS.terminal,
+            onClick: props.onAddTerminal,
+          } as const,
+        ]),
     {
       label: "Files",
       icon: Files,
@@ -1081,14 +1101,18 @@ export function RightPanelTabs(props: RightPanelTabsProps) {
       disabledReason: SURFACE_DISABLED_REASONS.pullRequests,
       onClick: props.onAddPullRequests,
     },
-    {
-      label: "Device",
-      icon: Smartphone,
-      shortcut: "M",
-      available: props.deviceAvailable,
-      disabledReason: SURFACE_DISABLED_REASONS.device,
-      onClick: props.onAddDevice,
-    },
+    ...(isRightPanelKindHidden("device")
+      ? []
+      : [
+          {
+            label: "Device",
+            icon: Smartphone,
+            shortcut: "M",
+            available: props.deviceAvailable,
+            disabledReason: SURFACE_DISABLED_REASONS.device,
+            onClick: props.onAddDevice,
+          } as const,
+        ]),
   ] as const;
 
   const handleAddSurfaceMenuKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {

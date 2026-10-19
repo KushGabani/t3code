@@ -19,4 +19,6 @@ export const WORKLAYER_HIDDEN = {
   scheduledTasks: true,
   /** Storage settings; cleanup keeps running on its defaults. */
   storage: true,
+  /** Terminal, browser preview, device simulators, project scripts and Open in editor. */
+  developerPanels: true,
 } as const;

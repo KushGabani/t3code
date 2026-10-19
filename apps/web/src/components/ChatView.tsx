@@ -3463,6 +3463,7 @@ export default function ChatView(props: ChatViewProps) {
       shellHistory?: "preserve" | "suppress";
     },
   ) => {
+    if (WORKLAYER_HIDDEN.developerPanels) return;
     if (!hasTerminalWriteAccess() || !activeThreadId || !activeProject || !activeThread) return;
     if (options?.rememberAsLastInvoked !== false) {
       setLastInvokedScriptByProjectId((current) => {
@@ -7968,7 +7969,9 @@ export default function ChatView(props: ChatViewProps) {
                 {...(!paintOnlyDisplayedTimeline
                   ? {
                       onCiteAssistantText: citeAssistantTextStable,
-                      ...(activeProject ? { onRunShellCommand: runShellCommandStable } : {}),
+                      ...(activeProject && !WORKLAYER_HIDDEN.developerPanels
+                        ? { onRunShellCommand: runShellCommandStable }
+                        : {}),
                     }
                   : {})}
                 isWorking={!paintOnlyDisplayedTimeline && isWorking}
