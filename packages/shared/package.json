@@ -371,6 +371,10 @@
       "types": "./src/appIdentity.ts",
       "import": "./src/appIdentity.ts"
     },
+    "./worklayerProfile": {
+      "types": "./src/worklayerProfile.ts",
+      "import": "./src/worklayerProfile.ts"
+    },
     "./thirdPartyLicenses": {
       "types": "./src/thirdPartyLicenses.ts",
       "import": "./src/thirdPartyLicenses.ts"

@@ -5,6 +5,7 @@ import {
   type ExecutionEnvironmentDescriptor,
 } from "@t3tools/contracts";
 import * as HostProcess from "@t3tools/shared/HostProcess";
+import { WORKLAYER_HIDDEN } from "@t3tools/shared/worklayerProfile";
 import * as Context from "effect/Context";
 import * as Crypto from "effect/Crypto";
 import * as Effect from "effect/Effect";
@@ -205,6 +206,8 @@ export const make = Effect.gen(function* () {
   const desktopAppUpdate =
     serverSelfUpdate === "desktop-managed" && serverConfig.desktopTelemetryControlFd !== undefined;
 
+  const showPullRequests = !WORKLAYER_HIDDEN.pullRequests;
+
   const descriptor: ExecutionEnvironmentDescriptor = {
     environmentId,
     label,
@@ -221,8 +224,8 @@ export const make = Effect.gen(function* () {
       attachmentUploads: true,
       questionAttachments: true,
       fileAttachments: { maxUploadBytes: PROVIDER_SEND_TURN_MAX_FILE_BYTES },
-      pullRequests: true,
-      pullRequestChecks: true,
+      pullRequests: showPullRequests,
+      pullRequestChecks: showPullRequests,
       inlineMessageContext: true,
       requiredWorktreeBootstrap: true,
       threadSettlement: true,
@@ -250,10 +253,10 @@ export const make = Effect.gen(function* () {
       threadTitleRegeneration: true,
       commandOutputStreaming: true,
       threadVisitedTracking: true,
-      threadPullRequests: true,
-      threadPullRequestWatch: true,
-      pullRequestStackActions: true,
-      threadPullRequestLinking: true,
+      threadPullRequests: showPullRequests,
+      threadPullRequestWatch: showPullRequests,
+      pullRequestStackActions: showPullRequests,
+      threadPullRequestLinking: showPullRequests,
       serverResolvedCommandContext: true,
       environmentIcon: true,
       projectCloneTracking: true,
