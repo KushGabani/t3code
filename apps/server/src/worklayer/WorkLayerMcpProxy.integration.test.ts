@@ -18,6 +18,7 @@ import { afterEach, describe, expect, it } from "vite-plus/test";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
+import * as Stream from "effect/Stream";
 import { FetchHttpClient, HttpRouter } from "effect/http";
 
 import * as McpSessionRegistry from "../mcp/McpSessionRegistry.ts";
@@ -118,6 +119,8 @@ const proxyHandler = (worklayerUrl: string) => {
           WorkLayerConnection.WorkLayerConnection.of({
             markRejected: Effect.void,
             startSignIn: () => Effect.die("unused"),
+            startLocalSignIn: Effect.die("unused"),
+            changes: Stream.empty,
             completeSignIn: () => Effect.die("unused"),
             disconnect: Effect.void,
             url: worklayerUrl,

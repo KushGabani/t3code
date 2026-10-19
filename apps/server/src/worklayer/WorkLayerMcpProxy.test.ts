@@ -3,6 +3,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
 import * as Redacted from "effect/Redacted";
+import * as Stream from "effect/Stream";
 import { HttpClient, HttpClientResponse, HttpRouter } from "effect/http";
 
 import * as McpSessionRegistry from "../mcp/McpSessionRegistry.ts";
@@ -59,6 +60,8 @@ const fixture = (options: { readonly connected: boolean }) => {
           WorkLayerConnection.WorkLayerConnection.of({
             markRejected: Effect.void,
             startSignIn: () => Effect.die("unused"),
+            startLocalSignIn: Effect.die("unused"),
+            changes: Stream.empty,
             completeSignIn: () => Effect.die("unused"),
             disconnect: Effect.void,
             url: "https://worklayer.test/mcp",
