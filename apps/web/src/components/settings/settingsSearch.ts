@@ -6,6 +6,7 @@ import type { EnvironmentId } from "@t3tools/contracts";
 import type { EnvironmentConnectionPhase } from "@t3tools/client-runtime/connection";
 import { sourceControlClients } from "@t3tools/client-runtime/source-control-clients";
 import { DEFAULT_KEYBINDINGS } from "@t3tools/shared/keybindings";
+import { WORKLAYER_HIDDEN } from "@t3tools/shared/worklayerProfile";
 import { commandLabel } from "./KeybindingsSettings.logic";
 import {
   validateSettingsScopeSearch,
@@ -993,6 +994,31 @@ export type SettingsSearchItemId = (typeof SETTINGS_SEARCH_ITEMS)[number]["id"];
 
 const SEARCH_ITEMS_BY_ID = new Map(SETTINGS_SEARCH_ITEMS.map((item) => [item.id, item] as const));
 
+type WorkLayerHiddenFlag = keyof typeof WORKLAYER_HIDDEN;
+
+const SETTINGS_PATH_PROFILE_FLAGS: Partial<Record<SettingsPath, WorkLayerHiddenFlag>> = {};
+
+const SETTINGS_ITEM_PROFILE_FLAGS: Partial<Record<SettingsSearchItemId, WorkLayerHiddenFlag>> = {
+  "pull-request-links-open-in-app": "pullRequests",
+  "remove-agent-credits-on-merge": "pullRequests",
+  "pull-request-merge-method": "pullRequests",
+  "auto-settle-merged-threads": "pullRequests",
+};
+
+function isProfileFlagHidden(flag: WorkLayerHiddenFlag | undefined): boolean {
+  return flag !== undefined && WORKLAYER_HIDDEN[flag];
+}
+
+/** Sections the WorkLayer build leaves out of the settings nav, search and palette. */
+export function isSettingsPathHidden(path: SettingsPath): boolean {
+  return isProfileFlagHidden(SETTINGS_PATH_PROFILE_FLAGS[path]);
+}
+
+/** Rows the WorkLayer build leaves out of settings pages, search and the palette. */
+export function isSettingsItemHidden(id: string): boolean {
+  return isProfileFlagHidden(SETTINGS_ITEM_PROFILE_FLAGS[id as SettingsSearchItemId]);
+}
+
 const SETTINGS_CATEGORY_SCOPES: Readonly<Record<SettingsPath, SettingsSearchScope | null>> = {
   "/settings/diagnostics": "environment",
   "/settings/projects": "project",
@@ -1111,6 +1137,8 @@ export function filterAvailableSettingsSearchItems(
   const items: ReadonlyArray<SettingsSearchItem> = SETTINGS_SEARCH_ITEMS;
   return items.filter(
     (item) =>
+      !isSettingsPathHidden(item.to) &&
+      !isSettingsItemHidden(item.id) &&
       (!item.cloudOnly || availability.hasCloudPublicConfig) &&
       (!item.environmentOnly || availability.hasEnvironment) &&
       (!item.providerSettingsOnly || availability.hasProviderSettingsEnvironment) &&

@@ -1,4 +1,9 @@
 import { describe, expect, it, vi } from "vite-plus/test";
+
+// Upstream behavior is tested with every setting visible; the WorkLayer
+// profile's hidden settings are covered by the dedicated test below.
+const worklayerHidden = vi.hoisted((): Record<string, boolean> => ({}));
+vi.mock("@t3tools/shared/worklayerProfile", () => ({ WORKLAYER_HIDDEN: worklayerHidden }));
 import { EnvironmentId } from "@t3tools/contracts";
 
 import {
@@ -170,6 +175,28 @@ describe("searchSettings", () => {
       desktopOnly: true,
       windowsOnly: true,
     });
+  });
+
+  it("leaves out settings the WorkLayer profile hides", () => {
+    const availableIds = () =>
+      filterAvailableSettingsSearchItems({
+        hasCloudPublicConfig: true,
+        hasEnvironment: true,
+        hasProviderSettingsEnvironment: true,
+        hasMacProviderSettingsEnvironment: true,
+        canManageLocalBackend: true,
+        isWslSettingsRowVisible: true,
+        hasThreadAutoSettlement: true,
+      }).map((item) => item.id);
+    expect(availableIds()).toContain("pull-request-merge-method");
+
+    worklayerHidden.pullRequests = true;
+    try {
+      expect(availableIds()).not.toContain("pull-request-merge-method");
+      expect(availableIds()).toContain("theme");
+    } finally {
+      delete worklayerHidden.pullRequests;
+    }
   });
 
   it("hides settings whose controls are unavailable", () => {

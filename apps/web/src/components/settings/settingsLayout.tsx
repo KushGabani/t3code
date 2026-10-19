@@ -24,6 +24,7 @@ import { WorkspacePageContainer, type WorkspacePageWidth } from "../WorkspacePag
 import { Button } from "../ui/button";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "../ui/tooltip";
 import { useOptionalSettingsScope } from "./SettingsScopeContext";
+import { isSettingsItemHidden } from "./settingsSearch";
 import { SettingsScopeSentence } from "./SettingsScopeSentence";
 import {
   isProjectScopedSettingKey,
@@ -255,7 +256,25 @@ function projectOverrides(
   });
 }
 
-export function SettingsRow({
+type SettingsRowProps = Omit<ComponentPropsWithoutRef<"div">, "title"> & {
+  title: ReactNode;
+  description?: ReactNode;
+  status?: ReactNode;
+  resetAction?: ReactNode;
+  onResetOverride?: () => void;
+  control?: ReactNode;
+  serverScoped?: boolean;
+  settingKeys?: readonly (keyof ServerSettings)[];
+  mixed?: boolean;
+  children?: ReactNode;
+};
+
+export function SettingsRow(props: SettingsRowProps) {
+  if (props.id !== undefined && isSettingsItemHidden(props.id)) return null;
+  return <VisibleSettingsRow {...props} />;
+}
+
+function VisibleSettingsRow({
   title,
   description,
   status,
@@ -268,18 +287,7 @@ export function SettingsRow({
   children,
   className,
   ...rowProps
-}: Omit<ComponentPropsWithoutRef<"div">, "title"> & {
-  title: ReactNode;
-  description?: ReactNode;
-  status?: ReactNode;
-  resetAction?: ReactNode;
-  onResetOverride?: () => void;
-  control?: ReactNode;
-  serverScoped?: boolean;
-  settingKeys?: readonly (keyof ServerSettings)[];
-  mixed?: boolean;
-  children?: ReactNode;
-}) {
+}: SettingsRowProps) {
   const targetRef = useSettingsSearchTarget<HTMLDivElement>(rowProps.id);
   const primarySettingsAvailable = usePrimarySettingsAvailable();
   const context = useOptionalSettingsScope();
