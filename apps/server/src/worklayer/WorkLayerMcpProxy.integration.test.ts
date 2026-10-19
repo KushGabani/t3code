@@ -116,6 +116,10 @@ const proxyHandler = (worklayerUrl: string) => {
         Layer.succeed(
           WorkLayerConnection.WorkLayerConnection,
           WorkLayerConnection.WorkLayerConnection.of({
+            markRejected: Effect.void,
+            startSignIn: () => Effect.die("unused"),
+            completeSignIn: () => Effect.die("unused"),
+            disconnect: Effect.void,
             url: worklayerUrl,
             authorization: Effect.succeedSome(Redacted.make(`Bearer ${WORKLAYER_TOKEN}`)),
           }),

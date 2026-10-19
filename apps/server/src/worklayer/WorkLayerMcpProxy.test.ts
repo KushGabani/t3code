@@ -57,6 +57,10 @@ const fixture = (options: { readonly connected: boolean }) => {
         Layer.succeed(
           WorkLayerConnection.WorkLayerConnection,
           WorkLayerConnection.WorkLayerConnection.of({
+            markRejected: Effect.void,
+            startSignIn: () => Effect.die("unused"),
+            completeSignIn: () => Effect.die("unused"),
+            disconnect: Effect.void,
             url: "https://worklayer.test/mcp",
             authorization: Effect.succeed(
               options.connected
