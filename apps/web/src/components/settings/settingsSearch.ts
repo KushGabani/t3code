@@ -1009,6 +1009,9 @@ const SETTINGS_ITEM_PROFILE_FLAGS: Partial<Record<SettingsSearchItemId, WorkLaye
   "hide-whitespace-changes": "diffs",
   "default-diff-file-state": "diffs",
   "diff-layout": "diffs",
+  "new-threads": "worktrees",
+  "worktree-submodules": "worktrees",
+  "start-from-origin": "worktrees",
 };
 
 function isProfileFlagHidden(flag: WorkLayerHiddenFlag | undefined): boolean {
