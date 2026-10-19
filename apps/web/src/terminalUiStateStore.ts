@@ -1,5 +1,6 @@
 import { parseScopedThreadKey, scopedThreadKey } from "@t3tools/client-runtime/environment";
 import { type ScopedThreadRef } from "@t3tools/contracts";
+import { WORKLAYER_HIDDEN } from "@t3tools/shared/worklayerProfile";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { resolveStorage } from "./lib/storage";
@@ -618,6 +619,7 @@ export const useTerminalUiStateStore = create<TerminalUiStateStoreState>()(
         terminalUiStateByThreadKey: {},
         suppressedTerminalIdsByThreadKey: {},
         setTerminalOpen: (threadRef, open) => {
+          if (open && WORKLAYER_HIDDEN.developerPanels) return;
           const terminalState = selectThreadTerminalUiState(
             get().terminalUiStateByThreadKey,
             threadRef,

@@ -1,3 +1,4 @@
+import { WORKLAYER_HIDDEN } from "@t3tools/shared/worklayerProfile";
 import { PanelBottomIcon, PanelRightIcon, SquareMenuIcon } from "lucide-react";
 import { Maximize2, Minimize2 } from "lucide";
 import { MorphIcon } from "~/components/MorphIcon";
@@ -83,7 +84,7 @@ export const PanelLayoutControls = memo(function PanelLayoutControls({
             )
           : threadPanelTooltip(threadPanelToggle)
         : null}
-      {showTerminalControl ? (
+      {showTerminalControl && !WORKLAYER_HIDDEN.developerPanels ? (
         <Tooltip>
           <TooltipTrigger render={<span className="flex shrink-0" />}>
             <Toggle

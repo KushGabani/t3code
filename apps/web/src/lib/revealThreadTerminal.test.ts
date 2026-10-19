@@ -1,6 +1,9 @@
 import { scopeThreadRef } from "@t3tools/client-runtime/environment";
 import { EnvironmentId, ThreadId } from "@t3tools/contracts";
-import { beforeEach, expect, it } from "vite-plus/test";
+import { beforeEach, expect, it, vi } from "vite-plus/test";
+
+// Keep the developer panels the WorkLayer profile hides under test.
+vi.mock("@t3tools/shared/worklayerProfile", () => ({ WORKLAYER_HIDDEN: {} }));
 
 import { selectThreadRightPanelState, useRightPanelStore } from "../rightPanelStore";
 import { selectThreadTerminalUiState, useTerminalUiStateStore } from "../terminalUiStateStore";

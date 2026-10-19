@@ -1,6 +1,11 @@
 import { scopeThreadRef, scopedThreadKey } from "@t3tools/client-runtime/environment";
 import { ThreadId } from "@t3tools/contracts";
-import { beforeEach, describe, expect, it } from "vite-plus/test";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
+
+// Upstream behavior is tested with the terminal visible; the WorkLayer
+// profile's hidden drawer is covered by its own test below.
+const worklayerHidden = vi.hoisted((): Record<string, boolean> => ({}));
+vi.mock("@t3tools/shared/worklayerProfile", () => ({ WORKLAYER_HIDDEN: worklayerHidden }));
 
 import {
   migratePersistedTerminalUiStateStoreState,
@@ -73,6 +78,21 @@ describe("terminalUiStateStore actions", () => {
         splitDirection: "vertical",
       },
     ]);
+  });
+
+  it("keeps the drawer closed when the WorkLayer profile hides developer panels", () => {
+    worklayerHidden.developerPanels = true;
+    try {
+      useTerminalUiStateStore.getState().setTerminalOpen(THREAD_REF, true);
+      expect(
+        selectThreadTerminalUiState(
+          useTerminalUiStateStore.getState().terminalUiStateByThreadKey,
+          THREAD_REF,
+        ).terminalOpen,
+      ).toBe(false);
+    } finally {
+      delete worklayerHidden.developerPanels;
+    }
   });
 
   it("materializes the default terminal when opening an empty drawer", () => {

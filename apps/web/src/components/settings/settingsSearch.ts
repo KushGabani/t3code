@@ -1000,6 +1000,7 @@ const SETTINGS_PATH_PROFILE_FLAGS: Partial<Record<SettingsPath, WorkLayerHiddenF
   "/settings/source-control": "git",
   "/settings/scheduled-tasks": "scheduledTasks",
   "/settings/storage": "storage",
+  "/settings/integrations": "developerPanels",
 };
 
 const SETTINGS_ITEM_PROFILE_FLAGS: Partial<Record<SettingsSearchItemId, WorkLayerHiddenFlag>> = {
@@ -1014,6 +1015,7 @@ const SETTINGS_ITEM_PROFILE_FLAGS: Partial<Record<SettingsSearchItemId, WorkLaye
   "new-threads": "worktrees",
   "worktree-submodules": "worktrees",
   "start-from-origin": "worktrees",
+  "terminal-font": "developerPanels",
 };
 
 function isProfileFlagHidden(flag: WorkLayerHiddenFlag | undefined): boolean {

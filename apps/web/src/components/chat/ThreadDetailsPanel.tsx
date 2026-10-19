@@ -124,7 +124,9 @@ export function ThreadDetailsPanel(props: ThreadDetailsPanelProps) {
                 />
               ) : null}
 
-              {density !== "essential" && props.showOpenInPicker ? (
+              {density !== "essential" &&
+              props.showOpenInPicker &&
+              !WORKLAYER_HIDDEN.developerPanels ? (
                 <OpenInPicker
                   keybindings={props.keybindings}
                   environmentId={props.environmentId}
@@ -135,7 +137,7 @@ export function ThreadDetailsPanel(props: ThreadDetailsPanelProps) {
                 />
               ) : null}
 
-              {props.activeProjectScripts ? (
+              {props.activeProjectScripts && !WORKLAYER_HIDDEN.developerPanels ? (
                 <ProjectScriptsControl
                   environmentId={props.environmentId}
                   displayMode="panel"

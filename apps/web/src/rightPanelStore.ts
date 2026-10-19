@@ -29,6 +29,9 @@ const RIGHT_PANEL_KIND_PROFILE_FLAGS: Partial<
   Record<RightPanelKind, keyof typeof WORKLAYER_HIDDEN>
 > = {
   diff: "diffs",
+  terminal: "developerPanels",
+  preview: "developerPanels",
+  device: "developerPanels",
 };
 
 export function isRightPanelKindHidden(kind: RightPanelKind): boolean {
@@ -306,8 +309,8 @@ const upsertSurface = (
   surface: RightPanelSurface,
   activate = true,
 ): ThreadRightPanelState => {
-  // Every opener funnels through here, so hidden kinds stay closed whether the
-  // request came from a shortcut, the palette, the timeline or a proactive open.
+  // Openers funnel through here, so hidden kinds stay closed whether the request
+  // came from a shortcut, the palette, the timeline or a proactive open.
   if (isRightPanelKindHidden(surface.kind)) return current;
   return {
     ...current,
@@ -957,9 +960,11 @@ export const useRightPanelStore = create<RightPanelStoreState>()(
                 (surface.id !== "browser:new" && validIds.has(surface.id)),
             );
             const knownIds = new Set(kept.map((surface) => surface.id));
-            const added = tabIds
-              .filter((tabId) => !knownIds.has(`browser:${tabId}`) && !hiddenTabIds?.has(tabId))
-              .map((tabId) => browserSurface(tabId));
+            const added = isRightPanelKindHidden("preview")
+              ? []
+              : tabIds
+                  .filter((tabId) => !knownIds.has(`browser:${tabId}`) && !hiddenTabIds?.has(tabId))
+                  .map((tabId) => browserSurface(tabId));
             const surfaces = [...kept, ...added];
             const activeStillExists = surfaces.some(
               (surface) => surface.id === current.activeSurfaceId,

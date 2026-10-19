@@ -9,6 +9,9 @@ import {
 import { AsyncResult } from "effect/reactivity";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
+// Keep the developer panels the WorkLayer profile hides under test.
+vi.mock("@t3tools/shared/worklayerProfile", () => ({ WORKLAYER_HIDDEN: {} }));
+
 import {
   applyPreviewServerSnapshot,
   readThreadPreviewState,
