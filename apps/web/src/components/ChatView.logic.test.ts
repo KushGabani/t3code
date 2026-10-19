@@ -41,6 +41,9 @@ import type { CodexArtifactTemplate } from "@t3tools/shared/codexArtifactTemplat
 import * as DateTime from "effect/DateTime";
 import * as Option from "effect/Option";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
+
+// Keep the diff surface the WorkLayer profile hides under test.
+vi.mock("@t3tools/shared/worklayerProfile", () => ({ WORKLAYER_HIDDEN: {} }));
 import { Atom, AsyncResult } from "effect/reactivity";
 import { appAtomRegistry } from "../rpc/atomRegistry";
 import { environmentThreadDetails } from "../state/threads";

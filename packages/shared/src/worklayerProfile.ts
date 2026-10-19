@@ -6,4 +6,6 @@
 export const WORKLAYER_HIDDEN = {
   /** Pull request list, review panels and PR rows; the server stops advertising them. */
   pullRequests: true,
+  /** Diff panel and the changed-files card under assistant replies. */
+  diffs: true,
 } as const;

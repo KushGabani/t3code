@@ -233,6 +233,7 @@ import {
   selectThreadPanelOpen,
   selectThreadRightPanelState,
   type RightPanelSurface,
+  isRightPanelKindHidden,
   useRightPanelStore,
 } from "../rightPanelStore";
 import {
@@ -8496,7 +8497,7 @@ export default function ChatView(props: ChatViewProps) {
                 ? { onCheckoutPullRequestRequest: openPullRequestDialogStable }
                 : {})}
               onComposerFocusRequest={scheduleComposerFocusStable}
-              {...(isServerThread && isGitRepo
+              {...(isServerThread && isGitRepo && !isRightPanelKindHidden("diff")
                 ? { onOpenChanges: openChangesFromThreadPanelStable }
                 : {})}
               onRunProjectScript={runProjectScriptStable}

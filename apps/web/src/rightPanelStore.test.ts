@@ -1,6 +1,11 @@
 import { scopeThreadRef } from "@t3tools/client-runtime/environment";
 import { type EnvironmentId, RunId, ThreadId } from "@t3tools/contracts";
-import { beforeEach, describe, expect, it } from "vite-plus/test";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
+
+// Upstream behavior is tested with every surface visible; the WorkLayer
+// profile's hidden kinds are covered by the dedicated test below.
+const worklayerHidden = vi.hoisted(() => ({ pullRequests: false, diffs: false }));
+vi.mock("@t3tools/shared/worklayerProfile", () => ({ WORKLAYER_HIDDEN: worklayerHidden }));
 
 import { useClosedViewStore } from "./closedViewStore";
 import {
@@ -20,6 +25,7 @@ const refA = scopeThreadRef("env-1" as EnvironmentId, ThreadId.make("thread-A"))
 const refB = scopeThreadRef("env-1" as EnvironmentId, ThreadId.make("thread-B"));
 
 beforeEach(() => {
+  worklayerHidden.diffs = false;
   useClosedViewStore.setState({ entries: [] });
   useRightPanelStore.setState({
     byThreadKey: {},
@@ -40,6 +46,21 @@ async function reloadRightPanelStore() {
 }
 
 describe("rightPanelStore", () => {
+  it("refuses surfaces the WorkLayer profile hides", () => {
+    worklayerHidden.diffs = true;
+    const store = useRightPanelStore.getState();
+    store.open(refA, "diff");
+    store.toggle(refA, "diff");
+    store.openProactive(refA, { kind: "diff", turnId: RunId.make("turn-1") }, 0);
+    store.open(refA, "files");
+
+    expect(
+      selectThreadRightPanelState(useRightPanelStore.getState().byThreadKey, refA).surfaces.map(
+        (surface) => surface.kind,
+      ),
+    ).toEqual(["files"]);
+  });
+
   it("records single and bulk tab closes, newest first", () => {
     const store = useRightPanelStore.getState();
     const pr = pullRequestSurface({
