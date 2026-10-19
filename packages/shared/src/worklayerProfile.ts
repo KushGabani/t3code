@@ -17,4 +17,6 @@ export const WORKLAYER_HIDDEN = {
   worktrees: true,
   /** Scheduled Tasks settings and the thread automations panel. */
   scheduledTasks: true,
+  /** Storage settings; cleanup keeps running on its defaults. */
+  storage: true,
 } as const;
