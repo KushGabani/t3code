@@ -15,4 +15,6 @@ export const WORKLAYER_HIDDEN = {
   git: true,
   /** Worktree mode settings; new chats always run in the project folder. */
   worktrees: true,
+  /** Scheduled Tasks settings and the thread automations panel. */
+  scheduledTasks: true,
 } as const;

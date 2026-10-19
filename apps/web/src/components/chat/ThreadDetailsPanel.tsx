@@ -176,7 +176,7 @@ export function ThreadDetailsPanel(props: ThreadDetailsPanelProps) {
             </ThreadDetailsSection>
           ) : null}
 
-          {density === "full" && !props.draftId ? (
+          {density === "full" && !props.draftId && !WORKLAYER_HIDDEN.scheduledTasks ? (
             <ThreadAutomationsPanel environmentId={props.environmentId} threadId={props.threadId} />
           ) : null}
 
